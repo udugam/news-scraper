@@ -25,7 +25,25 @@ app.set('view engine', 'handlebars')
 // Use body-parser for handling form submissions
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.get("/", function(req, res) {
+    request("https://basketball.realgm.com/", function(error, response, html) {
+        var $ = cheerio.load(html)
 
+        //
+        $(".secondary-story").each(function(element) {
+            var article = {}
+
+            article.headline = $(this).find(".article-title").text()
+            article.summary = $(this).find(".article-content").text()
+            article.link = $(this).find(".article-title").children("a").attr("href")
+            article.thumbnail = $(this).find(".article-image").attr("style")
+            console.log(article)
+        })
+
+
+        res.json(true)
+    })
+})
 
 
 //Start App
