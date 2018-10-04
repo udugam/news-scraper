@@ -26,22 +26,35 @@ app.set('view engine', 'handlebars')
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/", function(req, res) {
-    request("https://basketball.realgm.com/", function(error, response, html) {
+    var urlToScrape = "https://basketball.realgm.com"
+    request(urlToScrape, function(error, response, html) {
         var $ = cheerio.load(html)
 
         //
         $(".secondary-story").each(function(element) {
             var article = {}
 
+            //edit content for each article and store in article object to prepare for database storage
             article.headline = $(this).find(".article-title").text()
             article.summary = $(this).find(".article-content").text()
-            article.link = $(this).find(".article-title").children("a").attr("href")
-            article.thumbnail = $(this).find(".article-image").attr("style")
-            console.log(article)
+            article.link = urlToScrape + $(this).find(".article-title").children("a").attr("href")
+            article.thumbnail = urlToScrape + $(this).find(".article-image").attr("style").match(/'(.*?)'/)[1]
+        
+            //Store article in database
+            db.Article.findOneAndUpdate({link:article.link}, article)
+            // db.Article.create(article)
+            .then(function(dbArticle) {
+                // View the added result in the console
+                console.log(dbArticle);
+                res.json(true)
+            })
+            .catch(function(err) {
+                // If an error occurred, send it to the client
+                return res.json(err);
+            });
         })
 
-
-        res.json(true)
+        // Create a new Article using the `result` object built from scraping
     })
 })
 
