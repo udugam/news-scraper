@@ -1,0 +1,19 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <h1>Basketball News</h1>
+</nav>
+<div class='container-fluid'>
+    <div class='row'>
+        {{#each dbArticlesArray}}
+        <div class='col-sm'>
+            <div class="card" style="width: 18rem;">
+                <img class="card-img-top" src={{thumbnail}} alt="Card image cap">
+                <div class="card-body">
+                    <h5 class="card-title">{{headline}}</h5>
+                    <p class="card-text">{{summary}}</p>
+                    <a class="btn btn-primary" href={{link}}>Go to Article</a>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</div>

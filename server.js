@@ -29,9 +29,11 @@ app.get("/", function(req, res) {
     var urlToScrape = "https://basketball.realgm.com"
     request(urlToScrape, function(error, response, html) {
         var $ = cheerio.load(html)
+        var scrapedArticlesArrayHtml = $(".secondary-story")
+
 
         //
-        $(".secondary-story").each(function(element) {
+        scrapedArticlesArrayHtml.each(function(index, element) {
             var article = {}
 
             //edit content for each article and store in article object to prepare for database storage
@@ -41,20 +43,22 @@ app.get("/", function(req, res) {
             article.thumbnail = urlToScrape + $(this).find(".article-image").attr("style").match(/'(.*?)'/)[1]
         
             //Store article in database
-            db.Article.findOneAndUpdate({link:article.link}, article)
+            db.Article.findOneAndUpdate({link:article.link}, article, {upsert:true})
             // db.Article.create(article)
             .then(function(dbArticle) {
                 // View the added result in the console
-                console.log(dbArticle);
-                res.json(true)
+                if(index==(scrapedArticlesArrayHtml.length-1)) {
+                    db.Article.find().then(function(dbArticlesArray) {
+                        res.render('home', {dbArticlesArray})
+                    })
+                }
             })
             .catch(function(err) {
                 // If an error occurred, send it to the client
-                return res.json(err);
+                res.json(err);
             });
         })
 
-        // Create a new Article using the `result` object built from scraping
     })
 })
 
