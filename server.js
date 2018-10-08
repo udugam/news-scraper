@@ -41,14 +41,15 @@ app.get("/", function(req, res) {
             article.summary = $(this).find(".article-content").text()
             article.link = urlToScrape + $(this).find(".article-title").children("a").attr("href")
             article.thumbnail = urlToScrape + $(this).find(".article-image").attr("style").match(/'(.*?)'/)[1]
+            article.created = Date.now()
         
             //Store article in database
             db.Article.findOneAndUpdate({link:article.link}, article, {upsert:true})
             // db.Article.create(article)
             .then(function(dbArticle) {
-                // View the added result in the console
+                //Determine when the last response comes in before fetching all articles and rendering them to the home page
                 if(index==(scrapedArticlesArrayHtml.length-1)) {
-                    db.Article.find().then(function(dbArticlesArray) {
+                    db.Article.find().sort({created:-1}).then(function(dbArticlesArray) {
                         res.render('home', {dbArticlesArray})
                     })
                 }
