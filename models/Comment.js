@@ -3,9 +3,13 @@ var mongoose = require('mongoose')
 var Schema = mongoose.Schema;
 
 var CommentSchema = new Schema ({
-    content: {
+     comment: {
         type: String,
         required: true
+    },
+    created: {
+        type: Date,
+        default: Date.now()
     }
 })
 

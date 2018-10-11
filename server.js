@@ -25,6 +25,7 @@ app.set('view engine', 'handlebars')
 // Use body-parser for handling form submissions
 app.use(bodyParser.urlencoded({ extended: true }));
 
+
 app.get("/", function(req, res) {
     var urlToScrape = "https://basketball.realgm.com"
     request(urlToScrape, function(error, response, html) {
@@ -57,10 +58,14 @@ app.get("/", function(req, res) {
                 res.json(err);
             });
         })
-
-        
-
     })
+})
+
+app.post('/:id', function(req,res) {
+    var postID = req.params.id
+    var comment = req.body
+    
+    res.redirect('/')
 })
 
 
