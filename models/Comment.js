@@ -6,10 +6,6 @@ var CommentSchema = new Schema ({
      comment: {
         type: String,
         required: true
-    },
-    created: {
-        type: Date,
-        default: Date.now()
     }
 })
 

@@ -28,7 +28,7 @@
                         </button>
                     </div>
                 <div class="modal-body">
-                    <form id="form" class="form-inline" action="/" method="POST">
+                    <form class="form-inline">
                         <div class="form-group">
                             <input type="text" class="form-control" id="comment" name="commentText" placeholder="Comment Here">
                         </div>
@@ -49,6 +49,20 @@
     $("body").on("click", "#addComment", function() {
         $(".modal-title").text($(this).siblings("a").children("h5").text())
         $("#saveComment").attr("dbID",$(this).attr("dbID"))
-        $("#form").attr("action", `/${$(this).attr("dbID")}`)
+    })
+
+    $("body").on("click", "#saveComment", function(event) {
+        event.preventDefault()
+        var data = {
+            comment: $(this).siblings(".form-group").find("#comment").val()
+        }
+        $.ajax(`/${$("#saveComment").attr("dbID")}`, {
+            type: "POST",
+            data: data
+            }).then(
+            function(response) {
+                console.log("this is the response:", response);
+            }
+        );
     })
 </script>

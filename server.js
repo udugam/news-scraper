@@ -62,10 +62,16 @@ app.get("/", function(req, res) {
 })
 
 app.post('/:id', function(req,res) {
-    var postID = req.params.id
-    var comment = req.body
-    
-    res.redirect('/')
+    db.Comment.create(req.body) 
+        .then(function(dbComment) {
+            return db.Article.findOneAndUpdate({ _id: req.params.id }, { $push: {comments: dbComment._id} }, { new: true }).populate("comment")
+        })
+        .then(function(dbArticle) {
+            res.send(dbArticle)
+        })
+        .catch(function(err) {
+            res.json(err)
+        })
 })
 
 
