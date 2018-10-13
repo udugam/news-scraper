@@ -61,10 +61,21 @@ app.get("/", function(req, res) {
     })
 })
 
+app.get('/:id', function(req,res) {
+    db.Article.find({_id:req.params.id})
+    .populate("comments")
+    .then(function(dbArticle) {
+        res.send(dbArticle)
+    })
+    .catch(function(err) {
+        res.json(err)
+    })
+})
+
 app.post('/:id', function(req,res) {
     db.Comment.create(req.body) 
         .then(function(dbComment) {
-            return db.Article.findOneAndUpdate({ _id: req.params.id }, { $push: {comments: dbComment._id} }, { new: true }).populate("comment")
+            return db.Article.findOneAndUpdate({ _id: req.params.id }, { $push: {comments: dbComment._id} }, { new: true }).populate("comments")
         })
         .then(function(dbArticle) {
             res.send(dbArticle)
