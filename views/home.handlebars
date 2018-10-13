@@ -12,7 +12,7 @@
                         <h5>{{headline}}</h5>
                     </a>
                     <p class="card-text">{{summary}}</p>
-                    <button id="addComment" dbID={{_id}} type="button" class="btn btn-dark" data-toggle="modal" data-target="#commentWindow">Add a Comment</a>
+                    <button id="commentsModal" dbID={{_id}} type="button" class="btn btn-dark" data-toggle="modal" data-target="#commentWindow">Comments</a>
                 </div>
             </div>
         </div>
@@ -48,35 +48,72 @@
 </div>
 
  <script type="text/javascript">
-    //adds article related data to modal window when it's clicked
-    $("body").on("click", "#addComment", function() {
+    $("body").on("click", "#commentsModal", function() {
+        //adds article related data to modal window when it's clicked
         $(".modal-title").text($(this).siblings("a").children("h5").text())
         $("#saveComment").attr("dbID",$(this).attr("dbID"))
         
+        //check for existing comments and render to commentsList area
         $.ajax(`/${$("#saveComment").attr("dbID")}`, {
             type: "GET",
         })
         .then(function(dbArticle) {
             var commentsArray = dbArticle[0].comments
+            if (commentsArray.length === 0) {
+                $("#commentList").html("<h5>No Comments Yet</h5>")
+            } else {
                 $("#commentList").empty()
-            commentsArray.forEach(function(element) {
-                $("#commentList").append(`<li class="list-group-item" id="${element._id}">${element.comment}</li>`)
-            })
+                commentsArray.forEach(function(element) {
+                    $("#commentList").append(`<li class="list-group-item" id="${element._id}">${element.comment}<i class="fas fa-trash" style="float:right;"></i></li>`)
+                })
+            }
         })
     })
 
     $("body").on("click", "#saveComment", function(event) {
         event.preventDefault()
+        //store comment text from input field
         var data = {
             comment: $(this).siblings(".form-group").find("#comment").val()
         }
+        //send comment to db to be saved and rerender all comments when response comes back  
         $.ajax(`/${$("#saveComment").attr("dbID")}`, {
             type: "POST",
             data: data
-            }).then(
-            function(response) {
-                console.log("this is the response:", response);
+        })
+        .then(function(dbArticle) {
+            var commentsArray = dbArticle.comments
+            $("#commentList").empty()
+            commentsArray.forEach(function(element) {
+                $("#commentList").append(
+                `<li class="list-group-item" id="${element._id}">${element.comment}<i class="fas fa-trash" style="float:right;"></i></li>`
+                )
+            })
+        });
+    })
+
+    $("body").on("click", ".fa-trash", function(event) {
+        event.preventDefault()
+       
+        //extract the selected comment's id from it's parent li element
+        var commentID = $(this).parent().attr("id")
+         
+        //send comment id to server for deletion and render new comments array upon response
+        $.ajax(`/${commentID}`, {
+            type: "DELETE"
+        })
+        .then(function(dbArticle) {
+            var commentsArray = dbArticle.comments
+            if (commentsArray.length === 0) {
+                $("#commentList").html("<h7>No Comments Yet</h7>")
+            } else {
+                $("#commentList").empty()
+                commentsArray.forEach(function(element) {
+                    $("#commentList").append(
+                    `<li class="list-group-item" id="${element._id}">${element.comment}<i class="fas fa-trash" style="float:right;"></i></li>`
+                    )
+                })
             }
-        );
+        })
     })
 </script>

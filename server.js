@@ -85,6 +85,16 @@ app.post('/:id', function(req,res) {
         })
 })
 
+app.delete('/:id', function(req,res) {
+    db.Article.findOneAndUpdate({comments: req.params.id}, {$pull: {comments: req.params.id}}, {new: true}).populate("comments")
+    .then(function(response) {
+        res.send(response)
+    })
+    .catch(function(err) {
+        console.log(err)
+    })
+
+})
 
 //Start App
 app.listen(PORT, function() {
